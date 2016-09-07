@@ -110,7 +110,7 @@ ldr r1, cmu_base_addr
 
 	
 	//ldr r2, [r1, #GPIO_MODEH]
-	mov r3, #0x55555555
+	ldr r3, =0x55555555
 	//orr r2, r2, r3
 	str r2, [r1, #GPIO_MODEH]
 
@@ -127,7 +127,7 @@ ldr r1, cmu_base_addr
 	
 	ldr r1, gpio_pc_base_addr	
 	//ldr r2, [r1, #GPIO_MODEL]
-	mov r3, #0x33333333
+	ldr r3, =0x33333333
 	//orr r2, r2, r3
 	str r3, [r1, #GPIO_MODEL]
 	
