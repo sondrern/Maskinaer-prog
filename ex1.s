@@ -82,48 +82,61 @@
 	.type   _reset, %function
 	.thumb_func
 _reset: 
-	//b .  // do nothing
+
+	BL init_clk
+	BL init_leds
+	BL init_buttons
+	BL poll
 	
-ldr r1, =CMU_BASE
 
-	 //load current value of HFPERCLK ENBALE
-	 ldr r2, [r1, #CMU_HFPERCLKEN0]
-
-	 //Set bit for GPIO clk
-	 mov r3, #1 
-	 lsl r3, r3, #CMU_HFPERCLKEN0_GPIO
-	 orr r2, r2, r3
-
-	 //Store new value 
-	 str r2, [r1, #CMU_HFPERCLKEN0]
 	 
-	 ldr r1, =GPIO_PA_BASE
-		
-	//set high drive strength
+
+
+////////////////////////////////////////////////////////////////////////////
+          
+	.thumb_func
+init_clk:
+	ldr r1, =CMU_BASE
+ 	ldr r2, [r1, #CMU_HFPERCLKEN0]
+ 	mov r3, #1 
+ 	lsl r3, r3, #CMU_HFPERCLKEN0_GPIO
+ 	orr r2, r2, r3
+ 	str r2, [r1, #CMU_HFPERCLKEN0]
+ 	BX LR
+	
+////////////////////////////////////////////////////////////////////////////
+          
+	.thumb_func
+init_leds:
+	ldr r1, =GPIO_PA_BASE
 	mov r2, #0x2
 	str r2, [r1, #GPIO_CTRL]
-	
-	//set pins 8-15 output
 	ldr r2, =0x55555555
 	str r2, [r1, #GPIO_MODEH]
-		
+	BX LR
+
+////////////////////////////////////////////////////////////////////////////
+          
+	.thumb_func
+init_buttons:
 	ldr r1, =GPIO_PC_BASE 
- 	
-	//Set pins 0-7 to input
 	ldr r2, =0x33333333
 	str r2, [r1, #GPIO_MODEL]
-	
-	//Enable interal pull-up
 	mov r2, #0xff
 	str r2, [r1, #GPIO_DOUT]
-	
+	BX LR
+
+////////////////////////////////////////////////////////////////////////////
+          
+	.thumb_func
+poll:	
 	ldr r1, =GPIO_PC_BASE
 	ldr r2, =GPIO_PA_BASE
-while: 	
-	ldr r3, [r1, #GPIO_DIN]
-	lsl r3, r3, #8
-	str r3, [r2, #GPIO_DOUT]
-	b while
+	while: 	
+		ldr r3, [r1, #GPIO_DIN]
+		lsl r3, r3, #8
+		str r3, [r2, #GPIO_DOUT]
+		b while
 	
 	
 
