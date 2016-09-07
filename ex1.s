@@ -139,6 +139,16 @@ ldr r1, cmu_base_addr
 	
 	gpio_pc_base_addr:
 	.long GPIO_PC_BASE
+
+
+
+		ldr r1, =GPIO_PC_BASE
+		ldr r2, =GPIO_PA_BASE
+while: 	
+		ldr r3, [r1, #GPIO_DIN]
+		lsl r3, r3, #8
+		str r3, [r2, #GPIO_DOUT]
+		b while
 	
 	
 
