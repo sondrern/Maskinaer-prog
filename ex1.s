@@ -86,7 +86,8 @@ _reset:
 	BL init_clk
 	BL init_leds
 	BL init_buttons
-	BL poll
+	BL init_interupt
+	//BL poll
 	
 
 	 
@@ -142,14 +143,55 @@ poll:
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Interupt init
+//
+/////////////////////////////////////////////////////////////////////////////
+
+    .thumb_func
+init_interupt:  
+	ldr r1, =GPIO_BASE
+	ldr r2, =0x22222222
+	str r2, [r1, #GPIO_EXTIPSELL]
+	
+	mov r2, #0xff
+	str r2, [r1, # GPIO_EXTIFALL]
+	
+	mov r2, #0xff
+	str r2, [r1, #GPIO_EXTIRISE]
+	
+	mov r2, #0xff
+	str r2, [r1, #GPIO_IEN]
+	
+	ldr r1, =ISER0
+	ldr r2, =0x802
+	
+	str r2, [r1, #0]
+	
+	BX LR
+	
+/////////////////////////////////////////////////////////////////////////////
+//
 // GPIO handler
 // The CPU will jump here when there is a GPIO interrupt
 //
 /////////////////////////////////////////////////////////////////////////////
 
     .thumb_func
-gpio_handler:  
-	b .  // do nothing
+gpio_handler: 
+	ldr r1, =GPIO_BASE
+	ldr r2, =GPIO_PA_BASE
+		
+	ldr r3, [r1, #GPIO_IF]
+	lsl r3, r3, #8
+	str r3, [r2, #GPIO_DOUT]
+	
+	lsr r3, r3, #8
+	str r3, [r1, #GPIO_IFC]
+	
+	
+	
+	
+	 
 
 /////////////////////////////////////////////////////////////////////////////
 
