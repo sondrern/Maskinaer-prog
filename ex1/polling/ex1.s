@@ -86,10 +86,10 @@ _reset:
 	BL init_clk
 	BL init_leds
 	BL init_buttons
-	BL init_interupt
-	//BL poll
-	BL init_sleep
-	WFI
+	//BL init_interupt
+	BL poll
+	//BL init_sleep
+	//WFI
 
 	 
 
