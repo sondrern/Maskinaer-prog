@@ -88,7 +88,8 @@ _reset:
 	BL init_buttons
 	BL init_interupt
 	//BL poll
-	
+	BL init_sleep
+	WFI
 
 	 
 
@@ -154,7 +155,7 @@ init_interupt:
 	str r2, [r1, #GPIO_EXTIPSELL]
 	
 	mov r2, #0xff
-	str r2, [r1, # GPIO_EXTIFALL]
+	str r2, [r1, #GPIO_EXTIFALL]
 	
 	mov r2, #0xff
 	str r2, [r1, #GPIO_EXTIRISE]
@@ -165,9 +166,20 @@ init_interupt:
 	ldr r1, =ISER0
 	ldr r2, =0x802
 	
-	str r2, [r1, #0]
+	str r2, [r1]
 	
 	BX LR
+	
+	
+////////////////////////////////////////////////////////////////////////////
+          
+	.thumb_func
+init_sleep:
+	ldr r1, =SCR
+ 	mov r2, #6
+ 	str r2, [r1]
+ 	BX LR	
+
 	
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -179,16 +191,18 @@ init_interupt:
     .thumb_func
 gpio_handler: 
 	ldr r1, =GPIO_BASE
-	ldr r2, =GPIO_PA_BASE
+	ldr r2, [r1, #GPIO_IF]
+	str r2, [r1, #GPIO_IFC]
 		
-	ldr r3, [r1, #GPIO_IF]
+    
+    ldr r1, =GPIO_PC_BASE
+	ldr r2, =GPIO_PA_BASE
+
+	ldr r3, [r1, #GPIO_DIN]
 	lsl r3, r3, #8
 	str r3, [r2, #GPIO_DOUT]
 	
-	lsr r3, r3, #8
-	str r3, [r1, #GPIO_IFC]
-	
-	
+	BX LR
 	
 	
 	 
