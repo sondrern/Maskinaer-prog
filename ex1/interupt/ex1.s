@@ -163,7 +163,7 @@ poll:
     .thumb_func
 init_interupt:  
 	ldr r1, =GPIO_BASE
-	//
+	// Set external interupt port select low register to Port C
 	ldr r2, =0x22222222
 	str r2, [r1, #GPIO_EXTIPSELL]
 	// Interupt on 1->0 transistion
