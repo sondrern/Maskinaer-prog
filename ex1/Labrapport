@@ -1,0 +1,260 @@
+\documentclass[12pt,norsk,a4paper]{article}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage{gensymb}
+\usepackage[table,xcdraw]{xcolor}
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{float}
+\restylefloat{table}
+
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{listings}             % Include the listings-package
+\lstset{language=Assembler}
+
+\begin{document}
+\def\wl{\par \vspace{\baselineskip}}
+\begin{figure}[h]
+\centering
+\includegraphics[width=50mm,scale=0.5]{NTNU.PNG}.
+\label{NTNU}
+\title{TDT4258 Low-Level Programming \\ Assignment 1}
+\author{Group 25\\\ Sondre Rennan Nesset \\\ Martin Lesund\\\ Jared Showatatek}
+\maketitle
+\end{figure}
+\newpage
+
+
+
+\clearpage
+\renewcommand*\contentsname{Content}
+
+\tableofcontents
+
+\clearpage
+
+
+\section{Overview}
+In this assignment a program is written which lets the user control a row of LEDs on a gamepad. The Program is simulated with the EFM-32 Development Kit. Two versions of the program has been written, the baseline version uses polling, while the improved version uses interrupt which is a more energy-efficient technique. 
+
+ The EFM32GG-DK 3750 from Silicon Labs is a energy friendly development kit containing a mainboard, the 32-bit ARM based EFM32 microcontroller, a TFT display, and a prototyping board with several pins connected to the MCU. In exercise 1 the MCU is programmed using the assembly language, ARM Thumb-2. The EFM32 comes with a energy measurement feature that can do real time power measurement of the running software. The energy consumption is viewed as a graph on the onboard TFT display. The same graph can also be shown using the software EnergyAware(ea) Profiler attached to the TDT4258 virtual machine. 
+
+The EFM32 comes with four different energy modes, see section 1 of EFM32 Energy Optimization Application Note \cite{opt}. The modes offers functionality to power down parts of the microcontroller, MCU, reducing the static power consumption. The MCU offers a range of possibilities for interrupts. In the improved version of this assignment the MCU is put into energy mode 2, deep sleep, when the processor has nothing to do, like waiting for a button to be pressed. The GPIO interrupt routine will wake up the CPU, run the interrupt handler and go back to deep sleep.    
+
+
+\newpage
+\subsection{Baseline Solution}
+The baseline solution uses polling to read the GPIO buttons, and controlling the LEDs. Our solution reads the inputs from the buttons in a while(true) loop and turns the corresponding LEDs to high output. Our code is based on the \textbf{ex1.s} assembly file published under \textbf{ex1\_support} on itslearning.
+In the reset handler different init functions gets called to set the registers. Figure \ref{polling} shows an overview of the polling algorithm. 
+\\
+\begin{figure}[h]
+\centering
+\includegraphics[width=125mm,scale=0.5]{Polling.PNG}.
+\caption{Baseline solution}
+\label{polling}
+\end{figure}
+\\
+First the init\_clock function is called, which set the Clock Managment Unit, CMU. See 11.5.8 of EFM32GG reference manual \cite{efm32}. The CMU register enables the clock for each I/O controller. The CMU\_HFPERCLKEN0 contains a 32 bit register, where each bit set to 1 enables clock for that I/O. The following code loads CMU\_BASE register to r1, the CMU\_HFPERCLKEN0 to r2, than uses left shift to set the GPIO bit. Next the code uses the orr instruction to set only the GPIO bit and keep the rest of the register to its previous values. Last the register is stored and branch link register back to reset. 
+\newpage
+\begin{lstlisting}[frame=single]
+
+	.thumb_func
+init_clk:
+	// load CMU_HFPERCLKEN0 to r2
+	ldr r1, =CMU_BASE
+ 	ldr r2, [r1, #CMU_HFPERCLKEN0]
+ 	
+ 	// set 1 to GPIO clock, keep the previous values 
+ 	// for the rest of the register by 
+ 	//orr instruction
+ 	mov r3, #1 
+ 	lsl r3, r3, #CMU_HFPERCLKEN0_GPIO
+ 	orr r2, r2, r3
+ 	str r2, [r1, #CMU_HFPERCLKEN0]
+ 	BX LR
+\end{lstlisting}
+
+The init\_leds function loads GPIO\_PA\_BASE register to r1, since GPIO 8-15 is part of the Port A on the EFM32GG. 
+The port control register, GPIO\_PA\_CRTL, is set to 0x2 which set high drive strength. That enables a 20 mA drive current, see section 32.5.1 in \cite{efm32}. The Port Pin Mode High Register, GPIO\_PA\_MODEH, contains 32 bit with 4 bits for each pin 8-15 on the GPIO. The register is set to 5 on each pin. This configure the mode to push-pull output with drive strength set by drivemode. See section 32.5.3 in \cite{efm32}.     
+
+\begin{lstlisting}[frame=single]
+	.thumb_func
+init_leds:
+	
+	ldr r1, =GPIO_PA_BASE
+	// Set high drive strength
+	mov r2, #0x2
+	str r2, [r1, #GPIO_CTRL]
+	// Set to leds to output
+	ldr r2, =0x55555555
+	str r2, [r1, #GPIO_MODEH]
+	BX LR
+\end{lstlisting}
+
+Init\_buttons uses Port C, pin 0-7 of the GPIO. The GPIO\_MODEL is set to 0x33333333, mode inputpullfilter, see section 32.5.2 of \cite{efm32}. Bit 0-15 in the  Port Data Out Register, GPIO\_PC\_DOUT, is set to 1. Which enables data output on port. 
+
+\begin{lstlisting}[frame=single]
+    .thumb_func
+init_buttons:
+	ldr r1, =GPIO_PC_BASE 
+	// Set pins to input
+	ldr r2, =0x33333333
+	str r2, [r1, #GPIO_MODEL]
+	// Enable internal pull-up
+	mov r2, #0xff
+	str r2, [r1, #GPIO_DOUT]
+	BX LR
+\end{lstlisting}
+
+Now all initializing is done and the poll function gets called from reset.
+The Port C and Port A register loads to r1 and r2. Then a while(1) loop checks the buttons and turn the corresponding LEDs high if any button is pushed. This is achieved by loading the Port Data In Register, GPIO\_DIN, section 32.5.8 \cite{efm32} to r3. R3 is left shifted 8 places since buttons are GPIO pin 0-7, while LEDs are pin 8-15. R3 is stored to GPIO\_PA\_DOUT to turn the LEDs on or off. Last the code branches to while.   
+\begin{lstlisting}[frame=single]
+.thumb_func
+poll:	
+	ldr r1, =GPIO_PC_BASE
+	ldr r2, =GPIO_PA_BASE
+	while: 	
+		// Read buttons
+		ldr r3, [r1, #GPIO_DIN]
+		// Left shift since buttons are 
+		//pin 0-7, leds 8-15
+		lsl r3, r3, #8
+		// Set leds high or low
+		str r3, [r2, #GPIO_DOUT]
+		// while(true)
+		b while
+\end{lstlisting}
+
+\newpage
+\subsection{Improved Solution}
+The improved Solution differs from the baseline in that it uses interrupt instead of polling to signal that a button has been pushed. Similar like the baseline it starts with the reset block by initializing the clock, leds and the buttons.
+
+\begin{lstlisting}[frame=single]
+_reset: 
+
+	BL init_clk
+	BL init_leds
+	BL init_buttons
+	BL init_interupt
+	BL init_sleep
+	WFI
+\end{lstlisting} 
+
+The init\_interupt set external interupt port select low register. Then enables external interupt trigger on both rising and falling edge. GPIO\_IEN enables interupt on pin 0-7. ISER0 enables interupt handling on bit 1 and 11, GPIO\_EVEN and GPIO\_ODD. For an overview of the registers see section 32.5.10-32.5.16 in \cite{efm32}.
+\newpage
+\begin{lstlisting}[frame=single]
+   .thumb_func
+init_interupt:  
+	ldr r1, =GPIO_BASE
+	// Set external interupt port select low 
+	// register to Port C
+	ldr r2, =0x22222222
+	str r2, [r1, #GPIO_EXTIPSELL]
+	// Interupt on 1->0 transistion
+	mov r2, #0xff
+	str r2, [r1, #GPIO_EXTIFALL]
+	// Interupt on 0->1 transistion
+	mov r2, #0xff
+	str r2, [r1, #GPIO_EXTIRISE]
+	// Enable interupt generation
+	mov r2, #0xff
+	str r2, [r1, #GPIO_IEN]
+	// Enable interupt handling
+	ldr r1, =ISER0
+	ldr r2, =0x802
+	
+	str r2, [r1]
+	
+	BX LR
+\end{lstlisting} 
+
+After this it initialize the System Control Register by setting the second and third bit which enables the SLEEPDEEP and SLEEPONEXIT functions. 
+
+\begin{lstlisting}[frame=single]
+.thumb_func
+init_sleep:
+      ldr r1, =SCR
+      mov r2, #6
+      str r2, [r1]
+      BX LR	
+\end{lstlisting}
+
+When a button is pushed the micro-controller wakes up from sleep mode and goes into the GPIO handler block.
+In this block we first have to clear the interrupt request from the interrupt register GPIO\_IF. We use the GPIO\_IFC register which tells the micro-controller which request it should delete from the GPIO\_IF register. First we load the base register GPIO\_Base to r1 and the GPIO\_IF register to r2. The GPIO\_IF register contains a logic one on the bit positions to the button that is requesting the interrupt. To delete this request we store the r2 register to the GPIO\_IFC register. This stores a logic one on the button that called the request in the GPIO\_IFC and clears the bit in GPIO\_IF.
+
+\begin{lstlisting}[frame=single]
+.thumb_func
+gpio_handler: 
+	ldr r1, =GPIO_BASE
+	ldr r2, [r1, #GPIO_IF]
+	str r2, [r1, #GPIO_IFC]
+\end{lstlisting}
+		
+After the interrupt request bit has been cleared, the program loads the two base registers in to r1 and r2. In r3 the register GPIO\_DIN is loaded. This register contains a logic high in the bit position corresponding to the button that is being pressed. The last instructions stores r3 to the GPIO\_DOUT. This sets a active low in the same bit position in GPIO\_DOUT as in GPIO\_DIN. GPIO\_DOUT turns on a led when a active low is set in one of the bit positions.
+
+\begin{lstlisting}[frame=single]
+    ldr r1, =GPIO_PC_BASE
+	ldr r2, =GPIO_PA_BASE
+
+	ldr r3, [r1, #GPIO_DIN]
+	lsl r3, r3, #8
+	str r3, [r2, #GPIO_DOUT]
+	
+	BX LR
+\end{lstlisting}
+
+The function ends with branching back to sleep mode by issuing the instruction WFI until it gets a interrupt or reset signal. 
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=120mm,scale=0.5]{interrupt.PNG}.
+\caption{Improved Solution}
+\end{figure}
+
+\newpage
+
+
+
+
+\section{Energy Measurment}
+By using ea profiler we plotted the program both with the baseline and improved solution to measure the difference in average power. 
+
+\\ Figure \ref{pollingplot} shows the solution with polling, and it measures the current to 3.57 mA. Figure \ref{interruptplot} shows the solution with interrupt, and it measures the current to 1.60 uA. The peaks on the plot is the current when a button is being pressed on the gamepad. This peak increases the average current.The average current to the polling and interrupt is measured to 3.97 mA and 2.85 mA respectively. 
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=125mm,scale=0.5]{u_sleep1.png}.
+\caption{Baseline solution}
+\label{pollingplot}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=125mm,scale=0.5]{sleep.png}.
+\caption{Improved solution}
+\label{interruptplot}
+\end{figure}
+
+The plots shows that the improved solution uses much less power because the high frequency clocks are switched off and the core power is held in retention mode when the micro-controller is idle. 
+
+
+
+\clearpage
+\begin{thebibliography}{1}
+
+\bibitem{efm32} EFM32GG reference manual
+\bibitem{opt} EFM32 Energy Optimization Application Note
+
+\end{thebibliography}
+
+\end{document}
