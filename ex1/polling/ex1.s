@@ -82,7 +82,7 @@
 	.type   _reset, %function
 	.thumb_func
 _reset: 
-				//Initialize the clock,leds and the buttons on the gamepad
+	//Initialize clock,leds,buttons and start poll function
 	BL init_clk
 	BL init_leds						
 	BL init_buttons
@@ -128,12 +128,12 @@ init_buttons:
 ////////////////////////////////////////////////////////////////////////////
           
 	.thumb_func
-poll:	
-	ldr r1, =GPIO_PC_BASE			//Load the base register to r1 and r2
+poll:	//Check if a buttons has been pressed and turn on the right light
+	ldr r1, =GPIO_PC_BASE			
 	ldr r2, =GPIO_PA_BASE
-	while: 					//While loop that enables the polling
-		ldr r3, [r1, #GPIO_DIN]	       //Check the GPIO_DIN register to find which buttons 
-		lsl r3, r3, #8		       /
+	while:
+		ldr r3, [r1, #GPIO_DIN]
+		lsl r3, r3, #8
 		str r3, [r2, #GPIO_DOUT]
 		b while
 	
