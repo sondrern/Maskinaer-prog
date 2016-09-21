@@ -6,7 +6,7 @@
 void setupDAC()
 {
 	/*
-	   TODO enable and set up the Digital-Analog Converter
+	    TODO enable and set up the Digital-Analog Converter
 
 	   1. Enable the DAC clock by setting bit 17 in CMU_HFPERCLKEN0
 	   2. Prescale DAC clock by writing 0x50010 to DAC0_CTRL
