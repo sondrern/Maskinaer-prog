@@ -23,3 +23,16 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 {
 	/* TODO handle button pressed event, remember to clear pending interrupt */
 }
+
+
+void __attribute__ ((interrupt)) GPIO_Handler(){
+//Read interrupt and clear
+uint32_t i= *GPIO_IF;
+*GPIO_IFC= i;
+//Handle interrupt
+uint32_t x = *GPIO_PC_DIN;
+x = x << 8;
+*GPIO_PA_DOUT = x;
+
+
+}
