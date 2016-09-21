@@ -16,11 +16,11 @@ void setupTimer(uint16_t period)
 
 	   This will cause a timer interrupt to be generated every (period) cycles. Remember to configure the NVIC as well, otherwise the interrupt handler will not be invoked.
 	 */
-
-	   *CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER1; //Enable clock to timer
-	   *TIMER1_TOP = ;			//Writing period to register
-	   *TIMER1_IEN = 0x1;		//Enable timer interrupt generation
-	   *TIMER1_CMD = 0x1;		//start timer
-
+	   *CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER1;
+	     
+	   *TIMER1_TOP = period;
+	   *TIMER1_IEN=0x1;
+	   *ISER0 |= 0xc; 
+	   *TIMER1_CMD=1;
 
 }
