@@ -21,6 +21,19 @@ void setupTimer(uint16_t period)
 	   *TIMER1_TOP = period;		// Period to register
 	   *TIMER1_IEN=0x1; 		  //Enable timer interrupt generation
 	   *ISER0 |= 0xc;  			 // Enable timer interrupts
-	   *TIMER1_CMD=0x1; 		// Start the timer
+	  // *TIMER1_CMD=0x1; 		// Start the timer
 
+}
+
+void startTimer(){
+	*TIMER1_CMD = 0x1;
+}
+
+void stopTimer(){
+	*TIMER1_CMD = 0x0;
+}
+
+void disableTimer(){
+	*CMU_HFPERCLKEN0 &= ~CMU2_HFPERCLKEN0_TIMER1;
+	*TIMER1_IEN =0x0;
 }
