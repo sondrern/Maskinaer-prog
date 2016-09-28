@@ -21,11 +21,11 @@ void setupDAC()
 
 }
 
-void disableDAC{
+void disableDAC(){
 
-	   *DAC0_CTRL = 0;						//Prescale DAC clock
+	   *DAC0_CTRL = 0;						
 	   //*DAC0_CTRL |= (1 << 1);
-	   *DAC0_CH1CTRL = 0;							//Enable left and right audio channels
+	   *DAC0_CH1CTRL = 0;							
 	   *DAC0_CH0CTRL = 0;
-	   *CMU_HFPERCLKEN0 &= ~CMU2_HFPERCLKEN0_DAC0; // Enable DAC clock
+	   *CMU_HFPERCLKEN0 &= ~CMU2_HFPERCLKEN0_DAC0; 
 }
