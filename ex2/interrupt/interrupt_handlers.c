@@ -7,21 +7,34 @@
  uint32_t teller=0;
  uint32_t delay=0;
  uint32_t buttons=0;
- uint32_t flag=0;
+ 
+ uint32_t iterator = 0;
+ uint32_t lengde = 0;
 
 
 
 void __attribute__ ((interrupt)) TIMER1_IRQHandler(){
-   *TIMER1_IFC=0x1;
-  	teller++;
-  	if(teller==delay){
-  		*DAC0_CH0DATA = 0x000;
-	    *DAC0_CH1DATA = 0x000;
-	    flag=1;
-	    disableDAC();
-  	}
-  	else{
+	*TIMER1_IFC=0x1;
+    teller++;
 
+    
+
+    if (teller==delay){
+    	teller=0;
+    	iterator++;
+    	if(iterator>=lengde){
+    		*DAC0_CH0DATA = 0x000;
+		    *DAC0_CH1DATA = 0x000;
+		    //stopTimer();
+		    disableDAC();
+    	}
+    	else{
+    		play(iterator);
+    	}
+
+  	}
+
+  	else{
   		if(x2){
 	      *DAC0_CH0DATA = 0xfff;
 	      *DAC0_CH1DATA = 0xfff;
@@ -32,18 +45,16 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler(){
 	      *DAC0_CH1DATA = 0x000;
 	      x2=1; 
 	   }
-
   	}
-  		
-  	
-   
+	
 }
+
 
 void __attribute__ ((interrupt)) TIMER2_IRQHandler(){
    *TIMER2_IFC=0x1;
    	*DAC0_CH0DATA = 0x000;
      *DAC0_CH1DATA = 0x000;
-     stopTimer1();
+     stopTimer();
      //stopTimer2();
    	*GPIO_PA_DOUT=0xffff;
    //disableDAC();
@@ -69,97 +80,117 @@ void GPIO_interrupt(){
 	buttons=*GPIO_PC_DIN;
    if(buttons == 254){
    		setupDAC();
-   		uint32_t freq=NOTE_D5;
-	    setupTimer(14000000/(8*freq));
-	    teller=0;
-	    delay=200;
-	    delay=delay*freq/1000;
+   		lengde=1;
+		sounds[0].note=NOTE_D5;
+		sounds[0].time=200;
+   		
+   		teller=0;
+   		iterator=0;
+   		play(iterator);
    	}
 
    else if(buttons == 253){
    		setupDAC();
-   		uint32_t freq=660;
-	    setupTimer(14000000/(8*freq));
-	    teller=0;
-	    delay=200;
-	    delay=delay*freq/1000;
+   		lengde=1;
+		sounds[0].note=660;
+		sounds[0].time=200;
+   		
+   		teller=0;
+   		iterator=0;
+   		play(iterator);
    	}
 
    else if(buttons == 251){
    		setupDAC();
-   		uint32_t freq=660;
-	    setupTimer(14000000/(8*freq));
-	    teller=0;
-	    delay=200;
-	    delay=delay*freq/1000;
+   		lengde=1;
+		sounds[0].note=660;
+		sounds[0].time=200;
+   		
+   		teller=0;
+   		iterator=0;
+   		play(iterator);
    	}
 
    else if(buttons == 247){
-   		setupDAC();
-   		uint32_t freq=NOTE_AS5;
-	    setupTimer(14000000/(8*freq));
-	    teller=0;
-	    delay=100;
-	    delay=delay*freq/1000;
+   		
+	    setupDAC();
+   		lengde=1;
+		sounds[0].note=NOTE_AS5;
+		sounds[0].time=100;
+   		
+   		teller=0;
+   		iterator=0;
+   		play(iterator);
    	}
 
    else if(buttons == 239){
    		setupDAC();
-   		uint32_t freq=NOTE_F3;
-	    setupTimer(14000000/(8*freq));
-	    teller=0;
-	    delay=150;
-	    delay=delay*freq/1000;
+   		lengde=1;
+		sounds[0].note=NOTE_F3;
+		sounds[0].time=150;
+   		
+   		teller=0;
+   		iterator=0;
+   		play(iterator);
    	}
 
    	  else if(buttons == 223){
    		setupDAC();
-   		struct tone gameover3[4]= {
-		  {660,200},
-		  {330,200},
-		  {165,200},
-		  {500,200} 
-		};
-   		playMusic(gameover3,4);
-   		disableDAC();
-   		/*
-   		uint32_t freq=NOTE_C4;
-	    setupTimer(14000000/(8*freq));
-	    teller=0;
-	    delay=200;
-	    delay=delay*freq/1000;
-	    freq=NOTE_E4;
-	    
-	    uint32_t counter=0;
-	    /*
-	    while(counter<1400000){
-	    	counter++;
-	    	
-	    }
-	    */
-	    /*
-	    TIMER1_IRQHandler();
-	    setupTimer(14000000/(8*freq));
-	    teller=0;
-	    delay=500;
-	    delay=delay*freq/1000;
-	    
-	    flag=0;
-	    //while(flag==0){}
-	    freq=NOTE_D4;
-	    setupTimer(14000000/(8*freq));
-	    teller=0;
-	    delay=500;
-	    delay=delay*freq/1000;
-	    */
-   	}
+   		lengde=4;
+		sounds[0].note=660;
+		sounds[1].note=330;
+		sounds[2].note=165;
+		sounds[3].note=500;
 
-
-
-
+		sounds[0].time=200;
+		sounds[1].time=200;
+		sounds[2].time=200;
+		sounds[3].time=200;
    		
-      //setupTimer2(14000000/(8*200));
+   		teller=0;
+   		iterator=0;
+   		play(iterator);
+   		//startTimer();
+   	
+   	}
+  
+
    
 
 }
+
+void play(uint32_t a){
+	//stopTimer();
+	uint32_t freq=sounds[a].note;
+    setupTimer(freq);
+    //startTimer();
+    delay=sounds[a].time;
+    delay=(delay*freq*2*2)/1000;
+   
+}
+
+void playStart(void){
+		setupDAC();
+   		lengde=7;
+		sounds[0].note=400;
+		sounds[1].note=500;
+		sounds[2].note=600;
+		sounds[3].note=700;
+		sounds[4].note=600;
+		sounds[5].note=500;
+		sounds[6].note=400;
+
+		sounds[0].time=200;
+		sounds[1].time=200;
+		sounds[2].time=200;
+		sounds[3].time=200;
+		sounds[4].time=200;
+		sounds[5].time=200;
+		sounds[6].time=200;
+   		
+   		teller=0;
+   		iterator=0;
+   		play(iterator);
+}
+
 

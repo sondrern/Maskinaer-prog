@@ -275,41 +275,9 @@ struct tone start[12] = {
 
 };
 */
-struct tone start[12] = {
-   {400,200},
-   {0,25},
-   {500, 200},
-   {0,25},
-   {600, 200},
-   {0,25},
-   {700, 200},
-   {0,25},
-   {600, 200},
-   {0,25},
-   {500, 200},
-   {0,25},
-   {400, 200},
-   
 
-};
 
-struct tone start2[7] = {
-   {400,200},
-  
-   {500, 200},
-   
-   {600, 200},
-   
-   {700, 200},
-   
-   {600, 200},
-   
-   {500, 200},
-   
-   {400, 200},
-   
 
-};
 
 struct tone hit[1] = {
    {660,200}
@@ -342,15 +310,11 @@ int main(void)
 {
 	/* Call the peripheral setup functions */
 	setupGPIO();
-	setupDAC();
-
-	//setupNVIC();
 
       *GPIO_PA_DOUT = 0xff00;
-      //
-      playMusic(start2,7);
+
       setupNVIC();
-      disableDAC();
+      playStart();
    
 	while (1){
 

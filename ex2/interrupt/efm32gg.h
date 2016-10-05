@@ -167,9 +167,18 @@ void GPIO_interrupt();
 struct tone{
    int note, time;
 };
+
+void playStart(void);
+
+struct tone sounds[7];
+
 void playMusic(struct tone test[], uint32_t lengde);
 
+void play(uint32_t a);
 
+void startTimer();
+
+void stopTimer();
 
 #define NOTE_B0  31
 #define NOTE_C1  33
