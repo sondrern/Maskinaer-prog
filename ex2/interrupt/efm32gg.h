@@ -51,6 +51,9 @@
 #define CMU_HFCORECLKEN0 ((volatile uint32_t*)(CMU_BASE2 + 0x040))
 #define CMU_HFPERCLKEN0  ((volatile uint32_t*)(CMU_BASE2 + 0x044))
 #define CMU_CMD          ((volatile uint32_t*)(CMU_BASE2 + 0x024))
+#define CMU_LFACLKEN0    ((volatile uint32_t*)(CMU_BASE2 + 0x058))
+#define CMU_LFCLKSEL	 ((volatile uint32_t*)(CMU_BASE2 + 0x028))
+#define CMU_OSCENCMD 	 ((volatile uint32_t*)(CMU_BASE2 + 0x020))
 
 #define CMU2_HFPERCLKEN0_DAC0   (1 << 17)
 #define CMU2_HFPERCLKEN0_PRS    (1 << 15)
@@ -156,6 +159,19 @@
 #define SCR          ((volatile uint32_t*)0xe000ed10)
 #define SYSTICK_CTRL ((volatile uint32_t*)0xe000e010)
 #define SYSTICK_LOAD ((volatile uint32_t*)0xe000e014)
+
+//LETIMER0
+#define LETIMER0_BASE 0x40082000
+
+#define LETIMER0_CTRL ((volatile uint32_t*)(LETIMER0_BASE + 0x000)) 
+#define LETIMER0_CMD  ((volatile uint32_t*)(LETIMER0_BASE + 0x004)) 
+#define LETIMER0_IEN  ((volatile uint32_t*)(LETIMER0_BASE + 0x02c))
+#define LETIMER0_IFC  ((volatile uint32_t*)(LETIMER0_BASE + 0x028))
+#define LETIMER0_TOP  ((volatile uint32_t*)(LETIMER0_BASE + 0x010)) //USE COMP as TOP register
+#define LETIMER0_CNT  ((volatile uint32_t*)(LETIMER0_BASE + 0x00c))
+#define LETIMER0_IF ((volatile uint32_t*)(LETTIMER0_BASE + 0x020))
+
+
 void setupDAC();
 void disableDAC();
 void setupTimer2(uint16_t period);
@@ -179,6 +195,14 @@ void play(uint32_t a);
 void startTimer();
 
 void stopTimer();
+
+void disableTimer();
+
+void setupLowEnergyTimer();
+
+void changeTopCounter(int sample_rate);
+
+void disableLowEnergyTimer();
 
 #define NOTE_B0  31
 #define NOTE_C1  33
