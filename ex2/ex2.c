@@ -437,7 +437,7 @@ int main(void)
 
 	return 0;
 }
-/*
+
 void playTone(uint32_t tone, uint32_t delay){
    uint32_t freq=tone;
    uint32_t x2 = 1;
@@ -495,63 +495,7 @@ void playTone(uint32_t tone, uint32_t delay){
       }
 
 }
-*/
 
-void playTone(uint32_t tone, uint32_t delay){
-   uint32_t freq=tone;
-   uint32_t x2 = 1;
-   uint32_t teller=0;
-   uint32_t x =0;
-   uint32_t conter;
-   //delay=delay*2;
-   if(tone==0){ 
-      conter = 14000000/(8*1000);
-      setupTimer(conter);
-      while(1){
-         _asm(WFI);
-            teller++;
-            if (teller==delay){
-                  *DAC0_CH0DATA = 0x000;
-                  *DAC0_CH1DATA = 0x000;
-                  return;
-            }
-      
-      }
-   }
-      else{
-         conter = 14000000/(8*freq);
-         setupTimer(conter);
-
-      }
-      
-      
-      while(1){
-            _asm(WFI);
-               teller++;
-               if (teller==((delay*freq)/1000)){
-                     *DAC0_CH0DATA = 0x000;
-                     *DAC0_CH1DATA = 0x000;
-                     return;
-               }
-            if(x2){
-               *DAC0_CH0DATA = 0xfff;
-               *DAC0_CH1DATA = 0xfff;
-               x2=0;
-            }
-            else{
-               
-                 *DAC0_CH0DATA = 0x000;
-               *DAC0_CH1DATA = 0x000;
-               x2=1; 
-               
-               
-            }
-
-             
-         
-      }
-
-}
 
 void playMusic(struct tone test[], uint32_t lengde)
 {
@@ -571,25 +515,9 @@ void setupNVIC()
 	   You will need TIMER1, GPIO odd and GPIO even interrupt handling for this
 	   assignment.
 	 */
-      *ISER0=0x1802;
+      //*ISER0=0x1802;
 }
 
-void _attribute_ ((interrupt)) TIMER1_IRQHandler(){
-   *TIMER1_IFC=1;
-
-
-}
-
-void _attribute_ ((interrupt)) GPIO_EVEN_IRQHandler(){
-
-   *GPIO_IFC=0xff;
-   *GPIO_PA_DOUT=(*GPIO_PC_DIN << 8);
-}
-
-void _attribute_ ((interrupt)) GPIO_ODD_IRQHandler(){
-   *GPIO_IFC=0xff;
-   *GPIO_PA_DOUT=(*GPIO_PC_DIN << 8);
-}
 
 
 /* if other interrupt handlers are needed, use the following names: 
