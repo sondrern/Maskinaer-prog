@@ -144,7 +144,7 @@ struct tone start[12] = {
 int
 main (void)
 {
-  /* Call the peripheral setup functions */
+
   setupGPIO ();
   setupDAC ();
 
@@ -207,7 +207,6 @@ playTone (uint32_t tone, uint32_t delay)
   uint32_t teller = 0;
   uint32_t x = 0;
   uint32_t conter;
-  //delay=delay*2;
   if (tone == 0)
     {
       conter = 14000000 / (8 * 1000);
@@ -267,62 +266,7 @@ playTone (uint32_t tone, uint32_t delay)
 }
 
 
-/*void playTone(uint32_t tone, uint32_t delay){
-   uint32_t freq=tone;
-   uint32_t x2 = 1;
-   uint32_t teller=0;
-   uint32_t x =0;
-   uint32_t conter;
-   //delay=delay*2;
-   if(tone==0){ 
-      conter = 14000000/(8*1000);
-      setupTimer(conter);
-      while(1){
-         _asm(WFI);
-            teller++;
-            if (teller==delay){
-                  *DAC0_CH0DATA = 0x000;
-                  *DAC0_CH1DATA = 0x000;
-                  return;
-            }
-      
-      }
-   }
-      else{
-         conter = 14000000/(8*freq);
-         setupTimer(conter);
 
-      }
-      
-      
-      while(1){
-            _asm(WFI);
-               teller++;
-               if (teller==((delay*freq)/1000)){
-                     *DAC0_CH0DATA = 0x000;
-                     *DAC0_CH1DATA = 0x000;
-                     return;
-               }
-            if(x2){
-               *DAC0_CH0DATA = 0xfff;
-               *DAC0_CH1DATA = 0xfff;
-               x2=0;
-            }
-            else{
-               
-                 *DAC0_CH0DATA = 0x000;
-               *DAC0_CH1DATA = 0x000;
-               x2=1; 
-               
-               
-            }
-
-             
-         
-      }
-
-}
-*/
 
 void
 playMusic (struct tone test[], uint32_t lengde)
