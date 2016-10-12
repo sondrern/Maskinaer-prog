@@ -171,39 +171,25 @@
 #define LETIMER0_CNT  ((volatile uint32_t*)(LETIMER0_BASE + 0x00c))
 #define LETIMER0_IF ((volatile uint32_t*)(LETTIMER0_BASE + 0x020))
 
-
-void setupDAC ();
-void disableDAC ();
-void setupTimer2 (uint16_t period);
-void setupTimer (uint16_t period);
-void stopTimer1 ();
-void stopTimer2 ();
-void GPIO_interrupt ();
-
 struct tone
 {
   int note, time;
 };
 
-void playStart (void);
-
 struct tone sounds[7];
 
+
+void setupDAC ();
+void disableDAC ();
+void GPIO_interrupt ();
+void playStart (void);
 void playMusic (struct tone test[], uint32_t lengde);
-
 void play (uint32_t a);
+void LEtimerON ();
 
-void startTimer ();
+void setLEtimer (int freq);
 
-void stopTimer ();
-
-void disableTimer ();
-
-void setupLowEnergyTimer ();
-
-void changeTopCounter (int sample_rate);
-
-void disableLowEnergyTimer ();
+void LEtimerOFF ();
 //Definition of different frequencies in (Hz)
 #define NOTE_B0  31
 #define NOTE_C1  33
