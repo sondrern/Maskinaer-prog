@@ -38,7 +38,7 @@ main (void)
   return 0;
 }
 
-/*Purpose:Enable the interrupt handling
+/*Purpose:Enable the interrupt handling for Low Energy Timer, Timer1, Even GPIO, Odd GPIO
  Arguments:void
  returns: void */
 
