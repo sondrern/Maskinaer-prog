@@ -26,7 +26,7 @@ LEtimerON ()
 }
 
 
-/*Purpose: Change the top counter value by passing a sample_rate
+/*Purpose: Change the top counter value by passing a frequency
  Arguments: the sample_rate which we want to change to.
  Returns: void.
 
@@ -34,9 +34,9 @@ LEtimerON ()
 
 */
 void
-SetLEtimer (int sample_rate)
+SetLEtimer (int freq)
 {
-  *LETIMER0_TOP = (RTC_clock) / sample_rate;
+  *LETIMER0_TOP = (RTC_clock) / freq;
 }
 
 
