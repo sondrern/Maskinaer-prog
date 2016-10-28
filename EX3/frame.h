@@ -6,7 +6,6 @@
 
 
 uint16_t *framebuffer[WIDTH][HEIGTH];
-struct fb_copyarea rect; //fra kompendiet, for å mappe framebufferen til minne, se init
 
 void frameinit(void);
 void openfile(void);

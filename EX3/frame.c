@@ -1,15 +1,15 @@
 #include "frame.h"
 #include <linux/fb.h>
 #include <stdlib.h>
-#include <studio>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
+struct fb_copyarea rect; //fra kompendiet, for å mappe framebufferen til minne, se init
 
 void frameinit(void){
 	//map arrayet framebuffer til minne slik at vi kan skrive direkte med C kode.
-	int fd;
 	rect.dx=x;
 	rect.dy=y;
 	rect.width= WIDTH;
@@ -30,6 +30,7 @@ void frameinit(void){
 }
 
 void openfile(void){
+	int fd;
 	fd= fopen("dev/fb0", O_DIRECTORY);
 	if(!fd){
 
