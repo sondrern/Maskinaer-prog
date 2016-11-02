@@ -12,8 +12,8 @@ int frame_size;
 void frameinit(void){
 	//map arrayet framebuffer til minne slik at vi kan skrive direkte med C kode.
 
-	rect.dx=320;
-	rect.dy=240;
+	rect.dx=0;
+	rect.dy=0;
 	rect.width= WIDTH;
 	rect.height= HEIGTH;
 
