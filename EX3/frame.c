@@ -12,15 +12,15 @@ int frame_size;
 void frameinit(void){
 	//map arrayet framebuffer til minne slik at vi kan skrive direkte med C kode.
 
-	rect.dx=0;
-	rect.dy=0;
+	rect.dx=320;
+	rect.dy=240;
 	rect.width= WIDTH;
 	rect.height= HEIGTH;
 
 	frame_size= WIDTH*HEIGTH*2;
 
 
- 	fd= fopen("dev/fb0", O_DIRECTORY);
+ 	fd= fopen("dev/fb0",O_RDWR);
 	if(!fd){
 
 		printf("dev/fb0 IS NOT A DIRECTORY\n");
@@ -54,7 +54,7 @@ void closefile(void){
 
 void testscreen(void){
 
-	for(int i=0;i<WIDTH*HEIGTH; i++)
+	for(int i=0;i<2*WIDTH*HEIGTH; i++)
 	{
 		framebuffer[i]=0b0000000000001111;
 	}
