@@ -4,14 +4,15 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <fcntl.h>
 
-struct fb_copyarea rect; //fra kompendiet, for å mappe framebufferen til minne, se init
 
 void frameinit(void){
 	//map arrayet framebuffer til minne slik at vi kan skrive direkte med C kode.
-	rect.dx=x;
-	rect.dy=y;
+	fd=0;
+	rect.dx=0;
+	rect.dy=0;
 	rect.width= WIDTH;
 	rect.height= HEIGTH;
 
@@ -19,7 +20,7 @@ void frameinit(void){
 
 
  	openfile();
-	framebuffer = (uint16_t*)*mmap( frame_size, PROT_READ | PROT_WRITE, MAP_SHARED,fd, 0);
+	framebuffer = (uint16_t*)mmap( NULL,frame_size, PROT_READ | PROT_WRITE, MAP_SHARED,fd, 0);
 
 
 	closefile(fd);
@@ -30,7 +31,6 @@ void frameinit(void){
 }
 
 void openfile(void){
-	int fd;
 	fd= fopen("dev/fb0", O_DIRECTORY);
 	if(!fd){
 
@@ -43,7 +43,7 @@ void openfile(void){
 }
 
 void closefile(int fd){
-	ioctl(fbfd,0x4680,&rect) ;
+	ioctl(fd,0x4680,&rect) ;
 	printf("file refreshed\n");
 
 
@@ -53,4 +53,14 @@ void closefile(int fd){
 		exit(0);
 	}
 	printf("filed closed\n");
+}
+
+
+int main()
+{
+
+return 0;
+
+
+
 }
