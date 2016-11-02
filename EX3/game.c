@@ -23,3 +23,18 @@ int main(int argc, char *argv[])
 	}
 	exit(EXIT_SUCCESS);
 }
+/*
+#include "frame.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int main(int argc, char *argv[])
+{
+	printf("Hello World, I'm game!\n");
+	frameinit();
+ drawrectangle(160,120,50,50);
+	exit(EXIT_SUCCESS);
+}
+
+*/
