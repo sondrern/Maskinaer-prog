@@ -45,7 +45,10 @@ void frameinit(void){
 
 
 void closefile(void){
-	ioctl(fd,0x4680,&rect) ;
+
+
+	
+	ioctl(fd,0x4680,&rect);
 	printf("file refreshed\n");
 
 
@@ -63,10 +66,10 @@ void testscreen(void){
 
 	for(int i=0;i<WIDTH*HEIGTH; i++)
 	{
-		framebuffer[i]=GREEN;
+		framebuffer[i]=BLACK;
 		//0b0000000000011111;
 	}
-	closefile();
+	ioctl(fd,0x4680,&rect);
 }
 
 
@@ -74,16 +77,177 @@ void testscreen(void){
 
 
 
-void drawrectangle(int column, int row,int rec_width,int rec_heigth)
+void drawrectangle(int column, int row,int rec_width,int rec_heigth, int color)
 {	
-	for(int i = column; i < column + rec_heigth; i++)
+	for(int i = column; i < column + rec_width; i++)
 	{
 		for(int j = row; j < row + rec_heigth; j++)
 		{
-			framebuffer[i + j * WIDTH] = GREEN;
+			framebuffer[i + j * WIDTH] = color;
 		}
 	}
-	closefile();
+	
 }
+
+void refresh_screen(void){
+	ioctl(fd,0x4680,&rect);
+}
+
+
+void compute_slope(void){
+	
+	/*
+	if(current_x == LEFT || current_x == RIGTH){		
+		// Goalcurr
+		printf("GOAL");
+		init_game();
+	}
+	*/	
+	
+	if(current_y>=r_paddle_y && current_y<=r_paddle_y+PADDLEHEIGTH){
+		//printf("Y dir r Paddle = ball y");
+		if(current_x >= RIGTH-(PADDLEWIDTH*2)){
+			dx = 0 - dx;
+			printf("Rightpaddle hit! \n");
+		}
+	
+	}
+	
+	else{
+		if(current_x >= RIGTH-(PADDLEWIDTH*2)){
+			score1=score1+1;
+			printf("Score 1 = %i, Score2 = %i \n", score1, score2);
+			goal();
+		}
+	
+	}	
+	
+	
+	if(current_y+BALLSIZE>=l_paddle_y && current_y<=l_paddle_y+PADDLEHEIGTH){
+		//printf("Y dir left Paddle = ball y");
+		if(current_x <= LEFT+PADDLEWIDTH){
+			dx = 0 - dx;
+			printf("Leftpaddle hit! \n");
+		}
+	
+	}
+	
+	else{
+		if(current_x <= LEFT+PADDLEWIDTH){
+			score2=score2+1;
+			printf("Score 1 = %i, Score2 = %i \n", score1, score2);
+			goal();
+		}
+	
+	}	
+	
+	
+	if((current_y <= (TOP+5))) {
+		dy = 0 - dy;
+		printf("Top hit! \n");
+	
+	}
+	if(current_y >= (BUTTOM-15)) {
+		dy = 0 - dy;
+		printf("Buttom hit! \n");
+	}
+	
+}
+
+void updategame(void){
+	
+	last_x = current_x + dx;
+	current_x = current_x + dx;
+	
+	last_y = current_y + dy;
+	current_y = current_y + dy;
+	
+	l_paddle_y = l_paddle_y + left_dy;
+	// Define boundries for paddle top and buttom etc
+	r_paddle_y = r_paddle_y + right_dy;
+	
+	// Update ball pos @ display
+	drawrectangle(last_x-dx, last_y-dy, BALLSIZE, BALLSIZE, BLACK);
+	drawrectangle(current_x, current_y, BALLSIZE, BALLSIZE, WHITE);
+	
+	// Update left paddle pos @ display
+	drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+	drawrectangle(l_paddle_x, l_paddle_y-left_dy, PADDLEWIDTH, left_dy, BLACK);
+		
+	
+	// Update rigth paddle pos @ display
+	drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+	drawrectangle(r_paddle_x, r_paddle_y-right_dy, PADDLEWIDTH, right_dy, BLACK);
+	
+	refresh_screen();	
+	compute_slope();
+}
+
+
+
+void init_game(void){
+	frameinit();
+	testscreen();
+	current_x = 150;
+	current_y = 110;
+	last_x = 150;
+	last_y = 110;
+	
+	dy = 10;
+	dx = 10;
+	
+	l_paddle_x=0;
+	l_paddle_y=95;
+	
+	r_paddle_x=310;
+	r_paddle_y = 160;
+
+	left_dy=0;
+	right_dy = 0;
+	
+	score1=0;
+	score2=0;
+	targetscore=10;
+
+}
+
+void goal(void){
+	current_x = 150;
+	current_y = 110;
+	last_x = 150;
+	last_y = 110;
+	
+	dy = 10;
+	dx = 10;
+	
+	l_paddle_x=0;
+	l_paddle_y=95;
+	
+	r_paddle_x=310;
+	r_paddle_y = 160;
+
+	left_dy=0;
+	right_dy = 0;
+	
+	if(score1>=targetscore){
+		printf("Player 1 win\n");
+		init_game();
+	}
+	
+	if(score2>=targetscore){
+		printf("Player 2 win\n");
+		init_game();
+	}
+	testscreen();
+}
+
+
+
+
+
+
+
+
+
 
 
