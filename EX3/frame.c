@@ -211,7 +211,8 @@ void init_game(void){
 
 }
 
-void goal(void){
+void goal(int player_goal{
+
 	current_x = 150;
 	current_y = 110;
 	last_x = 150;
@@ -228,9 +229,18 @@ void goal(void){
 
 	left_dy=0;
 	right_dy = 0;
-	
+	if(player_goal==1){
+		printf("PLAYER 1 SCORES!!!\n");
+		score1=score1+1;
+	}
+	else if(player_goal==2){
+		printf("PLAYER 2 SCORES!!!\n");
+		score2=score2+1;
+	}
+
+	printf("THE SCORE IS %i - %i \n",score1,score2 );
 	if(score1>=targetscore){
-		printf("Player 1 win\n");
+		printf("Player 1 win\n")
 		init_game();
 	}
 	
@@ -238,12 +248,57 @@ void goal(void){
 		printf("Player 2 win\n");
 		init_game();
 	}
-	testscreen();
+	//testscreen();
 }
 
 
 
 
+
+
+void draw_array(uint16_t *array){
+		int color;
+		for(int i= 0; i<4;i++)
+		{
+			for(int j=0; j< 16; j++)
+			{	
+				if(array[i+j*4]==BLACK)
+				{
+					color= BLACK;
+				}
+				else if(array[i+j*4]==WHITE)
+				{
+					color= WHITE;
+				}
+				framebuffer[(150+80*WIDTH)+i+j*4]=color;
+			}
+
+		}
+
+
+
+
+}
+
+
+uint16_t nr1 [] = {
+	BLACK, WHITE, WHITE, BLACK, BLACK,
+	BLACK, WHITE, WHITE, BLACK, BLACK,
+	BLACK, WHITE, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, WHITE ,WHITE, WHITE, BLACK,
+	BLACK, WHITE, WHITE, WHITE, BLACK
+};
 
 
 
