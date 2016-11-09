@@ -57,7 +57,7 @@ void initDisplay();
 void fill_screen(uint16_t value);
 
 void refresh_screen();
-oid goal(int player_goal);
+void goal(int player_goal);
 
 void updategame(void);
 void compute_slope(void);
