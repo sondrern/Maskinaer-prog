@@ -18,6 +18,8 @@ int fd;
 #define BALLSIZE 10
 #define PADDLEHEIGTH 80
 #define PADDLEWIDTH 10
+#define PADDLEUP -10
+#define PADDLEDOWN	10
 void refresh_screen(void);
 
 	int current_x;
@@ -42,7 +44,6 @@ void refresh_screen(void);
 	int targetscore;
 
 
-
 uint16_t *framebuffer;
 struct fb_copyarea rect; //fra kompendiet, for å mappe framebufferen til minne, se init
 
@@ -57,31 +58,14 @@ void initDisplay();
 void fill_screen(uint16_t value);
 
 void refresh_screen();
-void goal(int player_goal);
+void goal(void);
 
-void updategame(void);
-void compute_slope(void);
+void updategame(int button);
+void compute_game(void);
 
 void init_game(void);
 void draw_array(uint16_t *array);
 
-uint16_t nr1 [] = {
-	BLACK, WHITE, WHITE, BLACK, BLACK,
-	BLACK, WHITE, WHITE, BLACK, BLACK,
-	BLACK, WHITE, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, WHITE ,WHITE, WHITE, BLACK,
-	BLACK, WHITE, WHITE, WHITE, BLACK
-};
 
-
+void drawchar(char c);
+void draw_text(char *matrix);

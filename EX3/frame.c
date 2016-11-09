@@ -1,4 +1,5 @@
 #include "frame.h"
+#include "font.h"
 #include <linux/fb.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -94,7 +95,7 @@ void refresh_screen(void){
 }
 
 
-void compute_slope(void){
+void compute_game(void){
 	
 	/*
 	if(current_x == LEFT || current_x == RIGTH){		
@@ -116,6 +117,7 @@ void compute_slope(void){
 	else{
 		if(current_x >= RIGTH-(PADDLEWIDTH*2)){
 			score1=score1+1;
+			printf("Player 1 scores!\n");
 			printf("Score 1 = %i, Score2 = %i \n", score1, score2);
 			goal();
 		}
@@ -135,6 +137,7 @@ void compute_slope(void){
 	else{
 		if(current_x <= LEFT+PADDLEWIDTH){
 			score2=score2+1;
+			printf("Player 2 scores!\n");
 			printf("Score 1 = %i, Score2 = %i \n", score1, score2);
 			goal();
 		}
@@ -154,8 +157,34 @@ void compute_slope(void){
 	
 }
 
-void updategame(void){
+void updategame(int button){
 	
+	
+	// Button handle, set dx, dy osv /////////
+	if(button == 255){
+		left_dy=0;
+		right_dy=0;
+	}
+
+	if((button >> 1 & 1)==0){
+		left_dy=PADDLEUP;
+		//printf("Left up \n");
+	}
+	else if((button >> 3 & 1)==0){
+		left_dy=PADDLEDOWN;
+		//printf("Left down \n");
+	}
+
+	if((button >> 5 & 1)==0){
+		right_dy=PADDLEUP;
+		//printf("Right up \n");
+	}
+	else if((button >> 7 & 1)==0){
+		right_dy=PADDLEDOWN;
+		//printf("Right down \n");
+	}
+
+
 	last_x = current_x + dx;
 	current_x = current_x + dx;
 	
@@ -163,24 +192,60 @@ void updategame(void){
 	current_y = current_y + dy;
 	
 	l_paddle_y = l_paddle_y + left_dy;
+	
+	if(l_paddle_y > BUTTOM-PADDLEHEIGTH){
+		l_paddle_y=BUTTOM-PADDLEHEIGTH;
+	}
+	else if(l_paddle_y <TOP){
+		l_paddle_y=TOP;
+	}
 	// Define boundries for paddle top and buttom etc
 	r_paddle_y = r_paddle_y + right_dy;
 	
+	if(r_paddle_y > BUTTOM-PADDLEHEIGTH){
+		r_paddle_y=BUTTOM-PADDLEHEIGTH;
+	}
+	else if(r_paddle_y <TOP){
+		r_paddle_y=TOP;
+	}
+
+
 	// Update ball pos @ display
 	drawrectangle(last_x-dx, last_y-dy, BALLSIZE, BALLSIZE, BLACK);
 	drawrectangle(current_x, current_y, BALLSIZE, BALLSIZE, WHITE);
 	
 	// Update left paddle pos @ display
-	drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
-	drawrectangle(l_paddle_x, l_paddle_y-left_dy, PADDLEWIDTH, left_dy, BLACK);
+	if(left_dy==PADDLEDOWN){
+		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+		drawrectangle(l_paddle_x, l_paddle_y-left_dy, PADDLEWIDTH, left_dy, BLACK);
+	}
+	else if(left_dy==PADDLEUP){
+		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+		drawrectangle(l_paddle_x, l_paddle_y+PADDLEHEIGTH+PADDLEDOWN, PADDLEWIDTH, PADDLEDOWN, BLACK);
+	}
+	else{
+		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+	}
+
+	
 		
 	
 	// Update rigth paddle pos @ display
-	drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
-	drawrectangle(r_paddle_x, r_paddle_y-right_dy, PADDLEWIDTH, right_dy, BLACK);
+	if(right_dy==PADDLEDOWN){
+		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+		drawrectangle(r_paddle_x, r_paddle_y-right_dy, PADDLEWIDTH, right_dy, BLACK);
+	}
 	
+	else if(right_dy==PADDLEUP){
+		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+		drawrectangle(r_paddle_x, r_paddle_y+PADDLEHEIGTH+PADDLEDOWN, PADDLEWIDTH, PADDLEDOWN, BLACK);
+	}
+	else{
+		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+	}
+
 	refresh_screen();	
-	compute_slope();
+	compute_game();
 }
 
 
@@ -193,7 +258,7 @@ void init_game(void){
 	last_x = 150;
 	last_y = 110;
 	
-	dy = 10;
+	dy = 0;
 	dx = 10;
 	
 	l_paddle_x=0;
@@ -209,10 +274,12 @@ void init_game(void){
 	score2=0;
 	targetscore=10;
 
+	//drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+	//drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+
 }
 
-void goal(int player_goal{
-
+void goal(void){
 	current_x = 150;
 	current_y = 110;
 	last_x = 150;
@@ -229,18 +296,9 @@ void goal(int player_goal{
 
 	left_dy=0;
 	right_dy = 0;
-	if(player_goal==1){
-		printf("PLAYER 1 SCORES!!!\n");
-		score1=score1+1;
-	}
-	else if(player_goal==2){
-		printf("PLAYER 2 SCORES!!!\n");
-		score2=score2+1;
-	}
-
-	printf("THE SCORE IS %i - %i \n",score1,score2 );
+	
 	if(score1>=targetscore){
-		printf("Player 1 win\n")
+		printf("Player 1 win\n");
 		init_game();
 	}
 	
@@ -248,19 +306,14 @@ void goal(int player_goal{
 		printf("Player 2 win\n");
 		init_game();
 	}
-	//testscreen();
+	testscreen();
 }
-
-
-
-
-
 
 void draw_array(uint16_t *array){
 		int color;
-		for(int i= 0; i<4;i++)
+		for(int i= 0; i<16;i++)
 		{
-			for(int j=0; j< 16; j++)
+			for(int j=0; j< 4; j++)
 			{	
 				if(array[i+j*4]==BLACK)
 				{
@@ -275,34 +328,51 @@ void draw_array(uint16_t *array){
 
 		}
 
-
-
-
+		refresh_screen();
 }
 
 
-uint16_t nr1 [] = {
-	BLACK, WHITE, WHITE, BLACK, BLACK,
-	BLACK, WHITE, WHITE, BLACK, BLACK,
-	BLACK, WHITE, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, BLACK, WHITE, BLACK, BLACK,
-	BLACK, WHITE ,WHITE, WHITE, BLACK,
-	BLACK, WHITE, WHITE, WHITE, BLACK
-};
 
 
+void drawchar(char c){
+	int j = c;
+	j=c-32;
+	for(uint16_t i = 0; i<12; i++){
+		framebuffer[chars_8x8_bits[j+i]] = WHITE;
+	}
+	refresh_screen();
+}
 
+void draw_text(char *matrix){
+	int color = 34;
+	for(int i = 0; i < 32; i++){
+		for(int j = 0; j < 24; j++){
+			switch(matrix[i + j * 32]){
+				case 'X':
+				color =0x0000;
+				break;
+				case 'Y':
+				color = 0xFF00;
+				break;
+				case 'G':
+				color = 0x008F;
+				break;
+				case 'B':
+				color = 0x00FF;
+				break;
+				case 'R':
+				color = 0xF000;
+				break;
+				case 'W':
+				color = 0xFFFF;
+				default:
+				break; 
+			}	
 
-
+			drawrectangle(i, j, 10, 10, color);
+		}
+	}
+	refresh_screen();
+}
 
 
