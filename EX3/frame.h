@@ -57,9 +57,31 @@ void initDisplay();
 void fill_screen(uint16_t value);
 
 void refresh_screen();
-void goal(void);
+oid goal(int player_goal);
 
 void updategame(void);
 void compute_slope(void);
 
 void init_game(void);
+void draw_array(uint16_t *array);
+
+uint16_t nr1 [] = {
+	BLACK, WHITE, WHITE, BLACK, BLACK,
+	BLACK, WHITE, WHITE, BLACK, BLACK,
+	BLACK, WHITE, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, BLACK, WHITE, BLACK, BLACK,
+	BLACK, WHITE ,WHITE, WHITE, BLACK,
+	BLACK, WHITE, WHITE, WHITE, BLACK
+};
+
+
