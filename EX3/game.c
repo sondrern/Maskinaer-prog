@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
 
 	//draw_array(nr11);
-	//draw_text(two);
+	//draw_text2(two);
 	//usleep(10000000);  	
 
 

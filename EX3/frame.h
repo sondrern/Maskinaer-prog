@@ -69,3 +69,5 @@ void draw_array(uint16_t *array);
 
 void drawchar(char c);
 void draw_text(char *matrix);
+void draw_text2(char *matrix);
+void draw_rect(int x, int y, int color);

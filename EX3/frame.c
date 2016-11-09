@@ -376,3 +376,43 @@ void draw_text(char *matrix){
 }
 
 
+void draw_rect(int x, int y, int color){
+	for(int i = x; i < x + 10; i++){
+		for(int j = y; j < y + 10; j++){
+			framebuffer[i + j * WIDTH] = color;
+		}
+	}
+}
+
+
+void draw_text2(char *matrix){
+	int color = 34;
+	for(int i = 0; i < 32; i++){
+		for(int j = 0; j < 24; j++){
+			switch(matrix[i + j * 32]){
+				case 'X':
+				color =0x0000;
+				break;
+				case 'Y':
+				color = 0xFF00;
+				break;
+				case 'G':
+				color = 0x008F;
+				break;
+				case 'B':
+				color = 0x00FF;
+				break;
+				case 'R':
+				color = 0xF000;
+				break;
+				case 'W':
+				color = 0xFFFF;
+				default:
+				break; 
+			}	
+
+			draw_rect(i*10, j*10, color);
+		}
+	}
+	refresh_screen();
+}
