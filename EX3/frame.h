@@ -21,6 +21,13 @@ int fd;
 #define PADDLEUP -10
 #define PADDLEDOWN	10
 void refresh_screen(void);
+void print_char(int col, int row, char c);
+void print_string(char *str);
+void set_cursor(int col, int row);
+void clear_line(int line);
+void clear_screen(void);
+int print_col;
+int print_row;
 
 	int current_x;
 	int current_y;

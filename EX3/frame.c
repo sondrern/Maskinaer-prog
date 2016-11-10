@@ -39,7 +39,8 @@ void frameinit(void){
 		framebuffer[i]= 0;
 	}
 
-
+	print_col=0;
+	print_row=0;
 
 }
 
@@ -309,110 +310,62 @@ void goal(void){
 	testscreen();
 }
 
-void draw_array(uint16_t *array){
-		int color;
-		for(int i= 0; i<16;i++)
-		{
-			for(int j=0; j< 4; j++)
-			{	
-				if(array[i+j*4]==BLACK)
-				{
-					color= BLACK;
-				}
-				else if(array[i+j*4]==WHITE)
-				{
-					color= WHITE;
-				}
-				framebuffer[(150+80*WIDTH)+i+j*4]=color;
+
+void print_char(int col, int row, char c){	
+	int c2=c-32;
+	for (int i=0; i<8; i++){
+		for (int j=0; j<8; j++){
+			if(((font[c2][i] >> j) & 1) == 0){
+				framebuffer[col+i+j*WIDTH+(row*WIDTH)]=0;
 			}
-
+			else{
+				framebuffer[col+i+j*WIDTH+(row*WIDTH)]=0xFFFF;
+			}
 		}
-
-		refresh_screen();
+	}
 }
 
+void print_string(char *str){
+	int i = 0;
+	while(str[i] != '\0'){
+		if(str[i]=='\n'){
+			print_col=0;
+			print_row=print_row+8;
+		}
+		else{
+			print_char(print_col, print_row, str[i]);
+			print_col=print_col+8;
+		}
+		
+		
 
-
-
-void drawchar(char c){
-	int j = c;
-	j=c-32;
-	for(uint16_t i = 0; i<12; i++){
-		framebuffer[chars_8x8_bits[j+i]] = WHITE;
+		if(print_col>WIDTH-8){
+			print_row=print_row+8;
+			print_col=0;
+		}
+		//if(print_row>HEIGTH)
+		i++;
 	}
 	refresh_screen();
 }
 
-void draw_text(char *matrix){
-	int color = 34;
-	for(int i = 0; i < 32; i++){
-		for(int j = 0; j < 24; j++){
-			switch(matrix[i + j * 32]){
-				case 'X':
-				color =0x0000;
-				break;
-				case 'Y':
-				color = 0xFF00;
-				break;
-				case 'G':
-				color = 0x008F;
-				break;
-				case 'B':
-				color = 0x00FF;
-				break;
-				case 'R':
-				color = 0xF000;
-				break;
-				case 'W':
-				color = 0xFFFF;
-				default:
-				break; 
-			}	
+void set_cursor(int col, int row){
+	print_row=row;
+	print_col=col;
+}
 
-			drawrectangle(i, j, 10, 10, color);
-		}
+void clear_screen(void){
+	for(int i=0;i<WIDTH*HEIGTH;i++)
+	{
+		framebuffer[i]= 0;
 	}
 	refresh_screen();
 }
 
-
-void draw_rect(int x, int y, int color){
-	for(int i = x; i < x + 10; i++){
-		for(int j = y; j < y + 10; j++){
-			framebuffer[i + j * WIDTH] = color;
-		}
-	}
-}
-
-
-void draw_text2(char *matrix){
-	int color = 34;
-	for(int i = 0; i < 32; i++){
-		for(int j = 0; j < 24; j++){
-			switch(matrix[i + j * 32]){
-				case 'X':
-				color =0x0000;
-				break;
-				case 'Y':
-				color = 0xFF00;
-				break;
-				case 'G':
-				color = 0x008F;
-				break;
-				case 'B':
-				color = 0x00FF;
-				break;
-				case 'R':
-				color = 0xF000;
-				break;
-				case 'W':
-				color = 0xFFFF;
-				default:
-				break; 
-			}	
-
-			draw_rect(i*10, j*10, color);
-		}
+void clear_line(int line){
+	set_cursor(0,line*8);
+	for(int i=0; i<WIDTH*8; i++){
+		framebuffer[line*8*WIDTH+i]=0;
 	}
 	refresh_screen();
 }
