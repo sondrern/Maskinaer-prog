@@ -1,6 +1,18 @@
+#define _BSD_SOURCE
 #pragma once
 #include <stdint.h>
 #include <linux/fb.h>
+#include <time.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+
+
+
+#define SCR          ((volatile uint32_t*)0xe000ed10)
 #define WIDTH 320
 #define HEIGTH 240
 int fd;
@@ -16,7 +28,12 @@ int fd;
 #define RIGTH 320
 
 #define BALLSIZE 10
-#define PADDLEHEIGTH 80
+//#define PADDLEHEIGTH 80
+int PADDLEHEIGTH_L;
+int PADDLEHEIGTH_R;
+int GAME_COLOR;
+
+
 #define PADDLEWIDTH 10
 #define PADDLEUP -10
 #define PADDLEDOWN	10
@@ -26,6 +43,19 @@ void print_string(char *str);
 void set_cursor(int col, int row);
 void clear_line(int line);
 void clear_screen(void);
+void print_int(int a);
+void invert_line(int line);
+void menu(void);
+void settings(void);
+void sleep_mode(void);
+
+
+void cheat_mode(void);
+void diff_level(void);
+void change_color(void);
+
+
+FILE *driver;
 int print_col;
 int print_row;
 
@@ -49,7 +79,8 @@ int print_row;
 	int score1;
 	int score2;
 	int targetscore;
-
+	int level;
+	int gameon;
 
 uint16_t *framebuffer;
 struct fb_copyarea rect; //fra kompendiet, for å mappe framebufferen til minne, se init

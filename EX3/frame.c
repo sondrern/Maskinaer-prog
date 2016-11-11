@@ -1,5 +1,6 @@
 #include "frame.h"
 #include "font.h"
+//#include "efm32gg.h"
 #include <linux/fb.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -64,15 +65,6 @@ void closefile(void){
 }
 
 
-void testscreen(void){
-
-	for(int i=0;i<WIDTH*HEIGTH; i++)
-	{
-		framebuffer[i]=BLACK;
-		//0b0000000000011111;
-	}
-	ioctl(fd,0x4680,&rect);
-}
 
 
 
@@ -106,7 +98,7 @@ void compute_game(void){
 	}
 	*/	
 	
-	if(current_y>=r_paddle_y && current_y<=r_paddle_y+PADDLEHEIGTH){
+	if(current_y>=r_paddle_y && current_y<=r_paddle_y+PADDLEHEIGTH_R){
 		//printf("Y dir r Paddle = ball y");
 		if(current_x >= RIGTH-(PADDLEWIDTH*2)){
 			dx = 0 - dx;
@@ -120,13 +112,24 @@ void compute_game(void){
 			score1=score1+1;
 			printf("Player 1 scores!\n");
 			printf("Score 1 = %i, Score2 = %i \n", score1, score2);
+			set_cursor(88,96);
+			print_string("Player 1 scores! \n");
+			set_cursor(88,112);
+			print_string("Score 1 = ");
+			print_int(score1);
+			print_string(",Score2 = ");
+			print_int(score2);
+			print_string("\n");
+			refresh_screen();
+			usleep(2500000);
+			clear_screen();
 			goal();
 		}
 	
 	}	
 	
 	
-	if(current_y+BALLSIZE>=l_paddle_y && current_y<=l_paddle_y+PADDLEHEIGTH){
+	if(current_y+BALLSIZE>=l_paddle_y && current_y<=l_paddle_y+PADDLEHEIGTH_L){
 		//printf("Y dir left Paddle = ball y");
 		if(current_x <= LEFT+PADDLEWIDTH){
 			dx = 0 - dx;
@@ -140,6 +143,17 @@ void compute_game(void){
 			score2=score2+1;
 			printf("Player 2 scores!\n");
 			printf("Score 1 = %i, Score2 = %i \n", score1, score2);
+			set_cursor(88,96);
+			print_string("Player 2 scores! \n");
+			set_cursor(88,112);
+			print_string("Score 1 = ");
+			print_int(score1);
+			print_string(",Score2 = ");
+			print_int(score2);
+			print_string("\n");
+			refresh_screen();
+			usleep(2500000);
+			clear_screen();
 			goal();
 		}
 	
@@ -194,8 +208,8 @@ void updategame(int button){
 	
 	l_paddle_y = l_paddle_y + left_dy;
 	
-	if(l_paddle_y > BUTTOM-PADDLEHEIGTH){
-		l_paddle_y=BUTTOM-PADDLEHEIGTH;
+	if(l_paddle_y > BUTTOM-PADDLEHEIGTH_L){
+		l_paddle_y=BUTTOM-PADDLEHEIGTH_L;
 	}
 	else if(l_paddle_y <TOP){
 		l_paddle_y=TOP;
@@ -203,8 +217,8 @@ void updategame(int button){
 	// Define boundries for paddle top and buttom etc
 	r_paddle_y = r_paddle_y + right_dy;
 	
-	if(r_paddle_y > BUTTOM-PADDLEHEIGTH){
-		r_paddle_y=BUTTOM-PADDLEHEIGTH;
+	if(r_paddle_y > BUTTOM-PADDLEHEIGTH_R){
+		r_paddle_y=BUTTOM-PADDLEHEIGTH_R;
 	}
 	else if(r_paddle_y <TOP){
 		r_paddle_y=TOP;
@@ -217,15 +231,15 @@ void updategame(int button){
 	
 	// Update left paddle pos @ display
 	if(left_dy==PADDLEDOWN){
-		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH_L, GAME_COLOR);
 		drawrectangle(l_paddle_x, l_paddle_y-left_dy, PADDLEWIDTH, left_dy, BLACK);
 	}
 	else if(left_dy==PADDLEUP){
-		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
-		drawrectangle(l_paddle_x, l_paddle_y+PADDLEHEIGTH+PADDLEDOWN, PADDLEWIDTH, PADDLEDOWN, BLACK);
+		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH_L, GAME_COLOR);
+		drawrectangle(l_paddle_x, l_paddle_y+PADDLEHEIGTH_L+PADDLEDOWN, PADDLEWIDTH, PADDLEDOWN, BLACK);
 	}
 	else{
-		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+		drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH_L, GAME_COLOR);
 	}
 
 	
@@ -233,16 +247,16 @@ void updategame(int button){
 	
 	// Update rigth paddle pos @ display
 	if(right_dy==PADDLEDOWN){
-		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH_R, GAME_COLOR);
 		drawrectangle(r_paddle_x, r_paddle_y-right_dy, PADDLEWIDTH, right_dy, BLACK);
 	}
 	
 	else if(right_dy==PADDLEUP){
-		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
-		drawrectangle(r_paddle_x, r_paddle_y+PADDLEHEIGTH+PADDLEDOWN, PADDLEWIDTH, PADDLEDOWN, BLACK);
+		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH_R, GAME_COLOR);
+		drawrectangle(r_paddle_x, r_paddle_y+PADDLEHEIGTH_R+PADDLEDOWN, PADDLEWIDTH, PADDLEDOWN, BLACK);
 	}
 	else{
-		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
+		drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH_R, GAME_COLOR);
 	}
 
 	refresh_screen();	
@@ -253,20 +267,24 @@ void updategame(int button){
 
 void init_game(void){
 	frameinit();
-	testscreen();
+	clear_screen();
 	current_x = 150;
 	current_y = 110;
 	last_x = 150;
 	last_y = 110;
+	PADDLEHEIGTH_L = 80;
+	PADDLEHEIGTH_R = 80;
+	GAME_COLOR = WHITE;
 	
-	dy = 0;
-	dx = 10;
+
+	dy=10;
+	dx=20;
 	
 	l_paddle_x=0;
 	l_paddle_y=95;
 	
 	r_paddle_x=310;
-	r_paddle_y = 160;
+	r_paddle_y = 95;
 
 	left_dy=0;
 	right_dy = 0;
@@ -274,7 +292,8 @@ void init_game(void){
 	score1=0;
 	score2=0;
 	targetscore=10;
-
+	level=1;
+	gameon=0;
 	//drawrectangle(r_paddle_x, r_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
 	//drawrectangle(l_paddle_x, l_paddle_y, PADDLEWIDTH, PADDLEHEIGTH, WHITE);
 
@@ -286,28 +305,40 @@ void goal(void){
 	last_x = 150;
 	last_y = 110;
 	
-	dy = 10;
-	dx = 10;
 	
 	l_paddle_x=0;
 	l_paddle_y=95;
 	
 	r_paddle_x=310;
-	r_paddle_y = 160;
+	r_paddle_y = 95;
 
 	left_dy=0;
 	right_dy = 0;
 	
 	if(score1>=targetscore){
 		printf("Player 1 win\n");
-		init_game();
+		score1=0;
+		score2=0;
+		set_cursor(88,96);
+		print_string("Player 1 WIN! \n");
+		refresh_screen();
+		usleep(2500000);
+		clear_screen();
+		menu();
 	}
 	
 	if(score2>=targetscore){
 		printf("Player 2 win\n");
-		init_game();
+		score1=0;
+		score2=0;
+		set_cursor(88,96);
+		print_string("Player 2 WIN! \n");
+		refresh_screen();
+		usleep(2500000);
+		clear_screen();
+		menu();
 	}
-	testscreen();
+	clear_screen();
 }
 
 
@@ -346,7 +377,7 @@ void print_string(char *str){
 		//if(print_row>HEIGTH)
 		i++;
 	}
-	refresh_screen();
+	//refresh_screen();
 }
 
 void set_cursor(int col, int row){
@@ -359,6 +390,7 @@ void clear_screen(void){
 	{
 		framebuffer[i]= 0;
 	}
+	set_cursor(0,0);
 	refresh_screen();
 }
 
@@ -368,4 +400,171 @@ void clear_line(int line){
 		framebuffer[line*8*WIDTH+i]=0;
 	}
 	refresh_screen();
+}
+
+void print_int(int a){
+	char buffer[50];
+	sprintf(buffer,"%d",a);
+	print_string(buffer);
+}
+
+void invert_line(int line){
+	set_cursor(0,line*8);
+	for(int i=0; i<WIDTH*8; i++){
+		if(framebuffer[line*8*WIDTH+i]==0){
+			framebuffer[line*8*WIDTH+i]=0xFFFF;
+		}
+		else{
+			framebuffer[line*8*WIDTH+i]=0;
+		}
+		
+	}
+	//refresh_screen();
+}
+
+
+
+void settings(void){
+	set_cursor(0,104);
+	print_string("              Settings menu \n \n");
+	print_string("              Cheat mode \n");
+	print_string("              Difficult level \n");
+	print_string("              Change color \n");
+	invert_line(15);
+	refresh_screen();
+
+	int teller=1;
+	int button;
+	while(1){
+		button = ((int)getc(driver));
+		if(button==191){
+			clear_screen();
+			break;
+		}
+		else if(button==247){
+			invert_line(teller+14);
+			teller++;
+			if(teller>3){
+				teller=3;
+			}
+			invert_line(teller+14);
+			refresh_screen();
+		}
+		else if(button==253){
+			invert_line(teller+14);
+			teller--;
+			if(teller==0){
+				teller=1;
+			}
+			invert_line(teller+14);
+			refresh_screen();
+		}
+		else if(button==127){
+			break;
+		}
+		usleep(30000);
+	}
+
+	if(button==191){
+		menu();
+	}
+	if(teller==1){
+		cheat_mode();
+	}
+	else if(teller==2){
+		diff_level();
+	}
+	else if(teller==3){
+		change_color();
+	}
+
+}
+
+void menu(void){
+	clear_screen();
+	system("clear");
+	set_cursor(0,104);
+	print_string("              Main menu \n \n");
+	print_string("              Start new game \n");
+	print_string("              Continue game \n");
+	print_string("              Settings \n");
+	print_string("              Sleep mode \n");
+	invert_line(15);
+
+	int teller=1;
+
+	refresh_screen();
+	while(1){
+		int button = ((int)getc(driver));
+		if(button==247){
+			invert_line(teller+14);
+			teller++;
+			if(teller>4){
+				teller=4;
+			}
+			invert_line(teller+14);
+			refresh_screen();
+		}
+		else if(button==253){
+			invert_line(teller+14);
+			teller--;
+			if(teller==0){
+				teller=1;
+			}
+			invert_line(teller+14);
+			refresh_screen();
+		}
+		else if(button==127){
+			break;
+		}
+		
+		usleep(30000);
+	}
+	if(teller==1){
+		init_game();
+	}
+	if(teller==2){
+		if(gameon==0){
+			clear_screen();
+			print_string("No game started, starting new game \n");
+			refresh_screen();
+			usleep(2000000);
+			init_game();
+		}
+	}
+	
+	if(teller==3){
+		clear_screen();
+		settings();
+	}
+	else if(teller==4){
+		sleep_mode();
+	}
+	
+}
+
+
+void cheat_mode(void){
+	PADDLEHEIGTH_R = 200;
+	PADDLEHEIGTH_L = 40;
+	dy=10;
+	dx=20;
+	clear_screen();
+}
+
+void diff_level(void){
+	clear_screen();
+	dy=5;
+	dx=10;
+}
+
+void change_color(void){
+	clear_screen();
+	GAME_COLOR = RED;
+}
+
+void sleep_mode(void){
+
+	*SCR=6;
+	//__asm("WFI");
 }
