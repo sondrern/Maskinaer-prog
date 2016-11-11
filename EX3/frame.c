@@ -319,6 +319,7 @@ void goal(void){
 		printf("Player 1 win\n");
 		score1=0;
 		score2=0;
+		gameon=0;
 		set_cursor(88,96);
 		print_string("Player 1 WIN! \n");
 		refresh_screen();
@@ -331,6 +332,7 @@ void goal(void){
 		printf("Player 2 win\n");
 		score1=0;
 		score2=0;
+		gameon=0;
 		set_cursor(88,96);
 		print_string("Player 2 WIN! \n");
 		refresh_screen();
